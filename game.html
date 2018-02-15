@@ -60,7 +60,22 @@
 	var canvasContext;
 	var BallX=50;
 	var BallSpeedX=10;
+	var BallY=50;
+	var BallSpeedY=4;
 
+	var Paddle1Y = 250;
+	var PADDLE_HEIGHT = 100;
+
+	function calMouse(evt){
+		var rect = canvas.getBoundingClientRect();
+		var root = document.documentElement;
+		var mouseX = evt.clientX - rect.left - root.scrollLeft;
+		var mouseY = evt.clientY - rect.top - root.scrollTop;
+		return {
+			x:mouseX,
+			y:mouseY
+		};
+	}
 	
 
 	window.onload = function() {
@@ -69,12 +84,18 @@
 		canvasContext = canvas.getContext('2d');
 		var framePerSec = 30;
 		setInterval("invoteFunc()",1000/framePerSec);
+
+		canvas.addEventListener('mousemove',function(evt){
+			var mousePos = calMouse(evt);
+			Paddle1Y = mousePos.y-(PADDLE_HEIGHT/2);
+		});
 	}
 
 	function invoteFunc(){
 		moveEverything();
 		movingBall();		
 	}
+
 
 	function colorRect(leftX,topY,width,height, drawColor){
 		canvasContext.fillStyle = drawColor;
@@ -92,23 +113,56 @@
 
 	function moveEverything(){
 		BallX = BallX +BallSpeedX;
+		BallY = BallY +BallSpeedY;
 		if (BallX>canvas.width) {
 			BallSpeedX=-BallSpeedX;
 		}
 		if (BallX<0) {
-			BallSpeedX=-BallSpeedX;
+			if(BallY > Paddle1Y && BallY < Paddle1Y+PADDLE_HEIGHT){
+				BallSpeedX = -BallSpeedX;
+			}else{
+				ballReset();	
+			}
+			
 		}
+		if (BallY>canvas.height) {
+			BallSpeedY=-BallSpeedY;
+		}
+		if (BallY<0) {
+			BallSpeedY=-BallSpeedY;
+			//ballReset();
+		}
+	}
+
+	function ballReset(){
+		BallSpeedX=-BallSpeedX;
+		BallX = canvas.width/2;
+		BallY = canvas.height/2;
 	}
 
 	function movingBall(){
 		
-		
 		colorRect(0,0,canvas.width,canvas.height,'black');
-		colorRect(0,50,10,100,'white');
-		colorCircle(BallX,100,10,'white');
+		resize_canvas();
+		
+		colorRect(0,Paddle1Y,10,PADDLE_HEIGHT,'white');
+		colorCircle(BallX,BallY,10,'white');
 		
 		
 	}
+
+	function resize_canvas(){
+            
+            if (canvas.width  < window.innerWidth)
+            {
+                canvas.width  = window.innerWidth;
+            }
+
+            if (canvas.height < window.innerHeight)
+            {
+                canvas.height = window.innerHeight;
+            }
+        }
 
 
 	</script>
