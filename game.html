@@ -50,7 +50,8 @@
 	</div>
 
 	<div class="container">
-	<h3>You will be able to play this game after few days</h3>
+	<h2>HUMAN VS AI</h2>
+	<h3>Who will score 10 points first?</h3>
 	<canvas id="gamecanvas" width="800" height="600">
 		
 	</canvas>
@@ -64,7 +65,16 @@
 	var BallSpeedY=4;
 
 	var Paddle1Y = 250;
+	var Paddle2Y = 250;
 	var PADDLE_HEIGHT = 100;
+	var PADDLE_THICKNESS = 10;
+
+	var WINPOINTS= 10;
+
+	var showingWinScreen = false;
+
+	var Player1 =0;
+	var Player2 =0;
 
 	function calMouse(evt){
 		var rect = canvas.getBoundingClientRect();
@@ -85,6 +95,8 @@
 		var framePerSec = 30;
 		setInterval("invoteFunc()",1000/framePerSec);
 
+		canvas.addEventListener('mousedown',mouseClick);
+
 		canvas.addEventListener('mousemove',function(evt){
 			var mousePos = calMouse(evt);
 			Paddle1Y = mousePos.y-(PADDLE_HEIGHT/2);
@@ -93,7 +105,15 @@
 
 	function invoteFunc(){
 		moveEverything();
-		movingBall();		
+		drawBlocks();		
+	}
+
+	function mouseClick(evt){
+		if (showingWinScreen){
+			Player1=0;
+			Player2=0;
+			showingWinScreen=false;
+		}
 	}
 
 
@@ -111,23 +131,56 @@
 
 	}
 
-	function moveEverything(){
-		BallX = BallX +BallSpeedX;
-		BallY = BallY +BallSpeedY;
-		if (BallX>canvas.width) {
-			BallSpeedX=-BallSpeedX;
+	function paddleAI(){
+		var  Paddle2YCenter = Paddle2Y + (PADDLE_HEIGHT/2);
+		
+		if(Paddle2YCenter<BallY-35){
+			Paddle2Y +=6;
+		}else if(Paddle2YCenter>BallY+35){
+			Paddle2Y -= 6;
 		}
+
+	}
+
+	function moveEverything(){
+		if(showingWinScreen){
+			canvasContext.fillStyle = 'white';
+			canvasContext.fillText("Play Again",100,100);
+			return;
+		}
+		
+		paddleAI();
+		BallX += BallSpeedX;
+		BallY += BallSpeedY;
+
+		if (BallX>canvas.width) {
+			if(BallY > Paddle2Y && BallY < Paddle2Y+PADDLE_HEIGHT){
+				BallSpeedX = -BallSpeedX;
+				flagY = BallY - (Paddle2Y + PADDLE_HEIGHT/2);
+				BallSpeedY = flagY * 0.35;
+			}else{
+				Player1++;
+				ballReset();
+					
+			}
+		}
+
 		if (BallX<0) {
 			if(BallY > Paddle1Y && BallY < Paddle1Y+PADDLE_HEIGHT){
 				BallSpeedX = -BallSpeedX;
+				flagY = BallY - (Paddle1Y + PADDLE_HEIGHT/2);
+				BallSpeedY = flagY * 0.35;
 			}else{
-				ballReset();	
+				Player2++;
+				ballReset();
+					
 			}
 			
 		}
 		if (BallY>canvas.height) {
 			BallSpeedY=-BallSpeedY;
 		}
+
 		if (BallY<0) {
 			BallSpeedY=-BallSpeedY;
 			//ballReset();
@@ -135,18 +188,43 @@
 	}
 
 	function ballReset(){
+		if (Player1 >= WINPOINTS || Player2 >= WINPOINTS){
+			showingWinScreen = true;
+		}
+
 		BallSpeedX=-BallSpeedX;
 		BallX = canvas.width/2;
 		BallY = canvas.height/2;
 	}
 
-	function movingBall(){
-		
+	function drawNet(){
+		for (var i = 0; i < canvas.height; i+=40) {
+			colorRect(canvas.width/2-1,i,2,20,'white');
+		}
+	}
+
+	function drawBlocks(){
+
 		colorRect(0,0,canvas.width,canvas.height,'black');
-		resize_canvas();
+		//resize_canvas();
+		if(showingWinScreen){
+			canvasContext.fillStyle = 'white';
+			if (Player1 >= WINPOINTS){
+				canvasContext.fillText("Human Won ! ",350,200);
+			} if(Player2 >= WINPOINTS){
+				canvasContext.fillText("AI Won !",350,200);
+			}
+			canvasContext.fillText("Click To Play Again",350,500);
+			return;
+		}
+		drawNet();
 		
-		colorRect(0,Paddle1Y,10,PADDLE_HEIGHT,'white');
+		colorRect(0,Paddle1Y,PADDLE_THICKNESS,PADDLE_HEIGHT,'white');
+		colorRect(canvas.width-PADDLE_THICKNESS,Paddle2Y,PADDLE_THICKNESS,PADDLE_HEIGHT,'white');
 		colorCircle(BallX,BallY,10,'white');
+
+		canvasContext.fillText(Player1,100,100);
+		canvasContext.fillText(Player2,canvas.width - 100,100);
 		
 		
 	}
