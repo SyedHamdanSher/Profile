@@ -1,0 +1,41 @@
+body {
+	background-image: url(images/bg.jpg);
+	background-size: cover; 
+}
+
+li {
+	list-style: none;
+}
+
+.onebone {
+	display: inline-block;  
+}
+
+.webboarder {
+	border : 5px dashed #255C69;
+}
+
+#div1 {
+	background: rgba(0,0,255,0.25);
+}
+
+p > img {
+	width: 200px;
+	height: 150px;
+	transition: all 1s;
+}
+footer {
+	clear: both;
+	text-align: center;
+}
+
+.container {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+
+}
+
+img:hover {
+	transform: scale(1.1);
+}
