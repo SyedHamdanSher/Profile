@@ -27,9 +27,15 @@ h1 {
 	
 }
 
+@keyframes example {
+    from {background-color: #5f93e8;}
+    to {background-color: red;}
+}
+
 .head:hover {
 	width: 300px;
-    transition: 1s ease-in-out;
+    animation-name: example;
+    animation-duration: 4s;
 }
 
 .upper_body { 
